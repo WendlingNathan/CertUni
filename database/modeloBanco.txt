@@ -1,0 +1,50 @@
+// Adotamos as nomenclaturas em inglês no nosso projeto
+
+erDiagram
+    User {
+        String id PK "UUID"
+        String name
+        String email UK
+        String password
+        Role role "STUDENT | ADMIN"
+        DateTime createdAt
+        DateTime updatedAt
+    }
+-- UUID para ser o ID único da entidade
+-- Role entre STUDENT e ADMIN para controlar o nível de acesso
+
+    Course {
+        String id PK "UUID"
+        String title
+        String description
+        String speaker
+        Int workload
+        DateTime eventDate
+        DateTime createdAt
+        DateTime updatedAt
+    }
+-- UUID para ser o ID único da entidade
+
+    Enrollment {
+        String id PK "UUID"
+        String userId FK
+        String courseId FK
+        Boolean completed
+        DateTime createdAt
+    }
+-- UUID para ser o ID único da entidade
+
+    Certificate {
+        String id PK "UUID"
+        String code UK "Validation Hash"
+        String userId FK
+        String courseId FK
+        DateTime issuedAt
+    }
+-- UUID para ser o ID único da entidade
+-- code funciona como o código "público" que torna o certificado válido
+
+    User (1:N) { Enrollment : "has"
+    Course (1:N) { Enrollment : "has"
+    User (N:N) { Certificate : "receives"
+    Course (1:N) { Certificate : "generates"
