@@ -2,6 +2,7 @@ import { Body, Controller, HttpCode, HttpStatus, Post, Get, UseGuards, Request }
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginDto } from './auth/dto/login.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -18,6 +19,7 @@ export class AuthController {
         return this.authService.login(loginDto);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get('me')
     getProfile(@Request() req: any) {
         return req.user;
