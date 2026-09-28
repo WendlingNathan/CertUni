@@ -1,5 +1,5 @@
 TAREFA 1: Módulo de Inscrições (EnrollmentModule) — Backend
-Foco: Regras de negócio e relacionamento no banco de dados.
+Status: CONCLUÍDA.
 
 O que fazer:
 
@@ -18,6 +18,16 @@ Rota GET /enrollments/my-enrollments (STUDENT): Listar os cursos em que o aluno 
 Rota GET /enrollments/course/:courseId (ADMIN): Listar todos os alunos inscritos em um curso específico.
 
 Rota DELETE /enrollments/:id (STUDENT/ADMIN): Permitir o cancelamento da inscrição.
+
+O QUE FOI FEITO: 
+
+Implementado: controller, service, DTO e registro do módulo no backend, com as quatro rotas abaixo protegidas por JWT e perfil de acesso. O aluno pode cancelar somente a própria inscrição; o administrador pode cancelar qualquer inscrição. A duplicidade é validada no service e protegida pela restrição única já existente no banco. As listagens de alunos não expõem senhas.
+
+Validação: build aprovado e 9 testes unitários do módulo aprovados. A suíte completa ainda possui 5 testes antigos com falhas de configuração de dependências. O lint passa com um aviso preexistente em usuários. Integração com banco real não foi validada nesta entrega.
+
+Foco: Regras de negócio e relacionamento no banco de dados.
+
+
 
 --------------------------------------------------------------------------------------------------------
 
