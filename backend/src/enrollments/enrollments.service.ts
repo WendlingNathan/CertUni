@@ -103,4 +103,21 @@ export class EnrollmentsService {
       throw new NotFoundException(`Course with ID ${courseId} not found`);
     }
   }
+  async checkIn(id: string) { const enrollmentExists = await this.prisma.enrollment.findUnique({
+      where: { id: id }, // Se for Int no schema.prisma, use Number(id)
+    });
+
+    if (!enrollmentExists) {
+      throw new NotFoundException('Inscrição não encontrada');
+    }
+
+   
+    const updatedEnrollment = await this.prisma.enrollment.update({
+      where: { id: id },
+      data: { completed: true },
+    });
+
+    return { message: 'Presença confirmada com sucesso!', enrollment: updatedEnrollment };
+  }
+
 }

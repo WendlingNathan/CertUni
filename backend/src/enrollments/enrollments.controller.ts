@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Patch,
   Get,
   Param,
   ParseUUIDPipe,
@@ -24,7 +25,7 @@ interface AuthenticatedRequest extends Request {
     role: Role;
   };
 }
-
+    
 @Controller('enrollments')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class EnrollmentsController {
@@ -42,6 +43,7 @@ export class EnrollmentsController {
     );
   }
 
+  
   @Get('my-enrollments')
   @Roles(Role.STUDENT)
   findMyEnrollments(@Req() request: AuthenticatedRequest) {
@@ -66,4 +68,9 @@ export class EnrollmentsController {
       request.user.role,
     );
   }
+  @Patch(':id/check-in')
+  checkIn(@Param('id') id: string) {
+    return this.enrollmentsService.checkIn(id); 
+  }
+
 }
