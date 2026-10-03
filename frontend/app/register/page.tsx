@@ -1,155 +1,125 @@
-'use client'; 
-// Dize ao Next.js que esta página tem interatividade (botões, digitação, etc.)
+'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
+import { ArrowRight, LockKeyhole, Mail, UserRound } from 'lucide-react';
+import { FormEvent, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { AuthShell } from '@/components/AuthShell';
+import { useAuth } from '@/context/AuthContext';
+import { getApiErrorMessage } from '@/lib/auth-types';
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const { status } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    role: 'STUDENT',
-  });
+  useEffect(() => {
+    if (status === 'authenticated') router.replace('/dashboard');
+  }, [router, status]);
 
-  // 2. Estado para saber se estamos a aguardar a resposta da rede
-  const [loading, setLoading] = useState(false);
-  
-  // 3. Estado para mostrar mensagens de sucesso ou erro na tela
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError('');
 
+    const form = new FormData(event.currentTarget);
+    const name = String(form.get('name') ?? '').trim();
+    const email = String(form.get('email') ?? '').trim();
+    const password = String(form.get('password') ?? '');
+    const passwordConfirmation = String(form.get('passwordConfirmation') ?? '');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  // Função disparada ao clicar no botão "Cadastrar"
-  const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setMessage(null);
-
-  try {
-    const response = await fetch('http://localhost:3000/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      // Garanta que os nomes das chaves correspondem exatamente ao CreateUserDto
-      body: JSON.stringify({
-        name: formData.name,       // ou formData.fullName conforme o DTO
-        email: formData.email,
-        password: formData.password,
-        role: formData.role,       // se o DTO aceitar o campo role
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      // Exibe os erros de validação retornados pelo ValidationPipe
-      const errorMsg = Array.isArray(data.message) ? data.message.join(', ') : data.message;
-      throw new Error(errorMsg || 'Falha ao realizar cadastro.');
+    if (password !== passwordConfirmation) {
+      setError('As senhas não coincidem.');
+      return;
     }
 
-    setMessage({ type: 'success', text: 'Conta criada com sucesso! Redirecionando...' });
-    
-    setTimeout(() => {
-      window.location.href = '/login';
-    }, 1500);
-  } catch (err: any) {
-    setMessage({ type: 'error', text: err.message || 'Erro ao conectar com o servidor.' });
-  } finally {
-    setLoading(false);
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(
+          getApiErrorMessage(data, 'Não foi possível concluir seu cadastro.'),
+        );
+      }
+
+      router.replace('/login');
+    } catch (registerError) {
+      setError(
+        registerError instanceof Error
+          ? registerError.message
+          : 'Não foi possível concluir seu cadastro.',
+      );
+      setIsSubmitting(false);
+    }
   }
-};
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg border border-gray-100">
-        <h2 className="mb-2 text-2xl font-bold text-center text-gray-800">Criar uma Conta</h2>
-        <p className="mb-6 text-center text-sm text-gray-500">Junte-se à plataforma CertUni</p>
+    <AuthShell>
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-8">
+        <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-600">
+          Comece agora
+        </p>
+        <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
+          Crie sua conta
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          O cadastro público cria um perfil de aluno na plataforma.
+        </p>
 
-        {/* Exibe mensagem de feedback se houver alguma */}
-        {message && (
-          <div
-            className={`mb-4 p-3 rounded text-sm text-center ${
-              message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            }`}
-          >
-            {message.text}
+        {error && (
+          <div role="alert" className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
-            <input
-              type="text"
-              name="name"
-              required
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Seu nome"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="mt-7 space-y-4">
+          <FormField id="name" label="Nome completo" type="text" autoComplete="name" placeholder="Seu nome" icon={UserRound} />
+          <FormField id="email" label="E-mail" type="email" autoComplete="email" placeholder="voce@universidade.edu.br" icon={Mail} />
+          <FormField id="password" label="Senha" type="password" autoComplete="new-password" placeholder="Mínimo de 6 caracteres" minLength={6} icon={LockKeyhole} />
+          <FormField id="passwordConfirmation" label="Confirme a senha" type="password" autoComplete="new-password" placeholder="Digite a senha novamente" minLength={6} icon={LockKeyhole} />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
-            <input
-              type="email"
-              name="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="seuemail@exemplo.com"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
-            <input
-              type="password"
-              name="password"
-              required
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Perfil</label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none bg-white"
-            >
-              <option value="STUDENT">Aluno</option>
-              <option value="TEACHER">Professor / Emissor</option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white shadow hover:bg-blue-700 transition duration-200 disabled:opacity-50"
-          >
-            {loading ? 'Cadastrando...' : 'Cadastrar'}
+          <button type="submit" disabled={isSubmitting} className="primary-button mt-2 w-full">
+            <span>{isSubmitting ? 'Criando conta...' : 'Criar conta'}</span>
+            {!isSubmitting && <ArrowRight className="size-4" aria-hidden="true" />}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-7 text-center text-sm text-slate-600">
           Já possui uma conta?{' '}
-          <Link href="/" className="font-semibold text-blue-600 hover:underline">
+          <Link href="/login" className="font-bold text-blue-700 hover:text-blue-800 hover:underline">
             Entrar
           </Link>
         </p>
+      </div>
+    </AuthShell>
+  );
+}
+
+interface FormFieldProps {
+  id: string;
+  label: string;
+  type: string;
+  autoComplete: string;
+  placeholder: string;
+  minLength?: number;
+  icon: typeof UserRound;
+}
+
+function FormField({ id, label, icon: Icon, ...inputProps }: FormFieldProps) {
+  return (
+    <div>
+      <label htmlFor={id} className="mb-2 block text-sm font-semibold text-slate-800">
+        {label}
+      </label>
+      <div className="relative">
+        <Icon className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+        <input id={id} name={id} required className="form-input pl-11" {...inputProps} />
       </div>
     </div>
   );

@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CertUni Frontend
 
-## Getting Started
+Frontend da plataforma CertUni construído com Next.js 16 (App Router), React 19,
+TypeScript e Tailwind CSS 4.
 
-First, run the development server:
+## Requisitos
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 20 ou superior
+- Backend NestJS da CertUni em execução
+
+## Configuração
+
+Por padrão, o servidor Next se comunica com o backend em
+`http://localhost:3000`. Para usar outro endereço, crie um arquivo `.env.local`:
+
+```env
+BACKEND_API_URL=http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Como o backend usa a porta 3000, execute o frontend em outra porta:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev -- --port 3001
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Acesse `http://localhost:3001`. A raiz redireciona para o dashboard ou, quando
+não há uma sessão válida, para `/login`.
 
-## Learn More
+## Autenticação
 
-To learn more about Next.js, take a look at the following resources:
+O navegador envia as credenciais às Route Handlers do próprio Next.js. Após o
+login, o JWT retornado pelo backend é armazenado em cookie `httpOnly`, `SameSite`
+e `Secure` em produção. O token não fica disponível para JavaScript do cliente.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `POST /api/auth/login`: autentica e cria a sessão.
+- `POST /api/auth/register`: cria uma conta pública com perfil `STUDENT`.
+- `GET /api/auth/session`: revalida a sessão em `/auth/me`.
+- `POST /api/auth/logout`: remove o cookie da sessão.
+- `/api/backend/*`: encaminha chamadas autenticadas ao backend sem expor o JWT.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+As páginas dentro de `app/(protected)` validam a sessão no servidor antes de
+renderizar. Novas páginas privadas, como as previstas na Parte 2, devem ser
+criadas nesse grupo.
 
-## Deploy on Vercel
+## Validação
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npm run build
+```

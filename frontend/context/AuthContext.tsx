@@ -1,54 +1,114 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api } from '@/lib/api';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useRouter } from 'next/navigation';
+import type { AuthUser } from '@/lib/auth-types';
+import { getApiErrorMessage } from '@/lib/auth-types';
 
-interface AuthContextType {
-  token: string | null;
-  login: (email: string, pass: string) => Promise<void>;
-  logout: () => void;
+type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated';
+
+interface AuthContextValue {
+  user: AuthUser | null;
+  status: SessionStatus;
   isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+const AuthContext = createContext<AuthContextValue | null>(null);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [token, setToken] = useState<string | null>(null);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [status, setStatus] = useState<SessionStatus>('loading');
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      setToken(storedToken);
+  const refreshSession = useCallback(async () => {
+    try {
+      const response = await fetch('/api/auth/session', { cache: 'no-store' });
+
+      if (!response.ok) {
+        setUser(null);
+        setStatus('unauthenticated');
+        return;
+      }
+
+      const data = (await response.json()) as { user: AuthUser };
+      setUser(data.user);
+      setStatus('authenticated');
+    } catch {
+      setUser(null);
+      setStatus('unauthenticated');
     }
   }, []);
 
-  const login = async (email: string, pass: string) => {
-    try {
-      const response = await api.post('/auth/login', { email, password: pass });
-      const { access_token } = response.data;
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => void refreshSession(), 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [refreshSession]);
 
-      localStorage.setItem('token', access_token);
-      setToken(access_token);
-      router.push('/dashboard');
-    } catch (error) {
-      console.error('Erro no login:', error);
-      throw new Error('Falha ao autenticar. Verifica o e-mail e a senha.');
-    }
-  };
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json().catch(() => null);
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    router.push('/login');
-  };
+      if (!response.ok) {
+        throw new Error(
+          getApiErrorMessage(data, 'Não foi possível entrar. Verifique seus dados.'),
+        );
+      }
 
-  return (
-    <AuthContext.Provider value={{ token, login, logout, isAuthenticated: !!token }}>
-      {children}
-    </AuthContext.Provider>
+      setUser(data.user as AuthUser);
+      setStatus('authenticated');
+      router.replace('/dashboard');
+      router.refresh();
+    },
+    [router],
   );
-};
 
-export const useAuth = () => useContext(AuthContext);
+  const logout = useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } finally {
+      setUser(null);
+      setStatus('unauthenticated');
+      router.replace('/login');
+      router.refresh();
+    }
+  }, [router]);
+
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      status,
+      isAuthenticated: status === 'authenticated',
+      login,
+      logout,
+      refreshSession,
+    }),
+    [login, logout, refreshSession, status, user],
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error('useAuth deve ser usado dentro de AuthProvider.');
+  }
+
+  return context;
+}

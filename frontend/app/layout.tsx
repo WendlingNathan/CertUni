@@ -1,9 +1,13 @@
+import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 
-export const metadata = {
-  title: 'CertUni',
-  description: 'Plataforma de Cursos e Certificados',
+export const metadata: Metadata = {
+  title: {
+    default: 'CertUni',
+    template: '%s | CertUni',
+  },
+  description: 'Plataforma de cursos, eventos acadêmicos e certificados.',
 };
 
 export default function RootLayout({
@@ -13,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body>
+      <body className="antialiased">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

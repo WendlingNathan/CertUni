@@ -1,69 +1,123 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
+import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react';
+import { FormEvent, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { AuthShell } from '@/components/AuthShell';
 import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { login, status } = useAuth();
   const [email, setEmail] = useState('');
-  const [pass, setPass] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (status === 'authenticated') router.replace('/dashboard');
+  }, [router, status]);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setError('');
+    setIsSubmitting(true);
 
     try {
-      await login(email, pass);
-    } catch (err: any) {
-      setError(err.message);
+      await login(email.trim(), password);
+    } catch (loginError) {
+      setError(
+        loginError instanceof Error
+          ? loginError.message
+          : 'Não foi possível entrar. Tente novamente.',
+      );
+      setIsSubmitting(false);
     }
-  };
+  }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md text-gray-800">
-        <h1 className="text-2xl font-bold text-center">Login - CertUni</h1>
-        
+    <AuthShell>
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-8">
+        <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-600">
+          Bem-vindo de volta
+        </p>
+        <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
+          Entre na sua conta
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Acesse seus cursos, inscrições e certificados.
+        </p>
+
         {error && (
-          <div className="p-3 text-sm text-red-700 bg-red-100 rounded">
+          <div role="alert" className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="mt-7 space-y-5">
           <div>
-            <label className="block text-sm font-medium mb-1">E-mail</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="seuemail@exemplo.com"
-            />
+            <label htmlFor="email" className="mb-2 block text-sm font-semibold text-slate-800">
+              E-mail
+            </label>
+            <div className="relative">
+              <Mail className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="voce@universidade.edu.br"
+                className="form-input pl-11"
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Senha</label>
-            <input
-              type="password"
-              value={pass}
-              onChange={(e) => setPass(e.target.value)}
-              required
-              className="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="******"
-            />
+            <label htmlFor="password" className="mb-2 block text-sm font-semibold text-slate-800">
+              Senha
+            </label>
+            <div className="relative">
+              <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="Digite sua senha"
+                className="form-input px-11"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((current) => !current)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 hover:text-slate-700"
+                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+              >
+                {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+              </button>
+            </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium"
-          >
-            Entrar
+          <button type="submit" disabled={isSubmitting} className="primary-button w-full">
+            <span>{isSubmitting ? 'Entrando...' : 'Entrar'}</span>
+            {!isSubmitting && <ArrowRight className="size-4" aria-hidden="true" />}
           </button>
         </form>
+
+        <p className="mt-7 text-center text-sm text-slate-600">
+          Ainda não possui uma conta?{' '}
+          <Link href="/register" className="font-bold text-blue-700 hover:text-blue-800 hover:underline">
+            Cadastre-se
+          </Link>
+        </p>
       </div>
-    </main>
+    </AuthShell>
   );
 }
