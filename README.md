@@ -1,91 +1,58 @@
-TAREFA 1: Módulo de Inscrições (EnrollmentModule) — Backend
-Status: CONCLUÍDA.
+# 🎓 CertUni
 
-O que fazer:
+Plataforma integrada para gerenciamento de cursos, matrículas, usuários e emissão de certificados acadêmicos.
 
-Implementar o controller e o service para as inscrições dos alunos.
+---
 
-Rota POST /enrollments (STUDENT): Permitir que um aluno autenticado se inscreva em um curso enviando o courseId.
+## 📌 Sobre o Projeto
 
-Regras de Negócio (Validações):
+O **CertUni** é uma aplicação web desenvolvida em arquitetura moderna de microsserviços/monorepo dividida em **Backend** e **Frontend**. A solução visa simplificar o ciclo de vida acadêmico, permitindo a gestão eficiente de usuários, turmas, matrículas e a validação/emissão de certificados.
 
-Validar se o curso realmente existe no banco.
+---
 
-Impedir que o mesmo aluno se inscreva duas vezes no mesmo curso (retornar erro 400 Bad Request).
+## 🚀 Tecnologias Utilizadas
 
-Rota GET /enrollments/my-enrollments (STUDENT): Listar os cursos em que o aluno logado está inscrito.
+### **Backend**
+- **Framework:** [NestJS](https://nestjs.com/) (TypeScript)
+- **ORM:** [Prisma](https://www.prisma.io/)
+- **Banco de Dados:** PostgreSQL / MySQL
+- **Autenticação:** JWT (JSON Web Tokens) + Passport
+- **Testes:** Jest (Unitários e E2E)
 
-Rota GET /enrollments/course/:courseId (ADMIN): Listar todos os alunos inscritos em um curso específico.
+### **Frontend**
+- **Framework:** [Next.js](https://nextjs.org/) (App Router & React)
+- **Linguagem:** TypeScript
+- **Estilização:** Tailwind CSS
+- **Gerenciamento de Sessão:** Next.js Route Handlers + Context API
 
-Rota DELETE /enrollments/:id (STUDENT/ADMIN): Permitir o cancelamento da inscrição.
+---
 
-O QUE FOI FEITO: 
+## 📂 Estrutura do Repositório
 
-Implementado: controller, service, DTO e registro do módulo no backend, com as quatro rotas abaixo protegidas por JWT e perfil de acesso. O aluno pode cancelar somente a própria inscrição; o administrador pode cancelar qualquer inscrição. A duplicidade é validada no service e protegida pela restrição única já existente no banco. As listagens de alunos não expõem senhas.
+```text
+CertUni/
+├── backend/                  # API NestJS
+│   ├── prisma/               # Schema, migrations e configurações do banco
+│   ├── src/
+│   │   ├── auth/             # Autenticação, JwtGuard e RolesGuard
+│   │   ├── users/            # Módulo de usuários
+│   │   ├── courses/          # Módulo de cursos
+│   │   ├── enrollments/      # Módulo de matrículas
+│   │   └── certificates/     # Módulo de certificados
+│   └── test/                 # Testes E2E
+├── frontend/                 # Aplicação Next.js
+│   ├── app/                  # App Router (páginas públicas e rotas protegidas)
+│   ├── components/           # Componentes React reutilizáveis
+│   ├── context/              # Contexto de autenticação global
+│   └── lib/                  # Helpers e integração de API backend
+└── database/                 # Documentação e modelos relacionais do banco
+```
 
-Validação: build aprovado e 9 testes unitários do módulo aprovados. A suíte completa ainda possui 5 testes antigos com falhas de configuração de dependências. O lint passa com um aviso preexistente em usuários. Integração com banco real não foi validada nesta entrega.
+## 👥 Integrantes do Projeto
 
-Foco: Regras de negócio e relacionamento no banco de dados.
-
-
-
---------------------------------------------------------------------------------------------------------
-
-TAREFA 2: Módulo de Presenças e Certificados (CertificatesModule) — Backend
-Foco: Lógica de conclusão, geração de código único e exportação de PDF.
-
-O que fazer:
-
-Rota PATCH /enrollments/:id/check-in ou attended (ADMIN): Marcar que o aluno compareceu ao evento.
-
-Módulo de Emissão (POST /certificates/generate/:enrollmentId):
-
-Verificar se a inscrição do aluno está marcada como "presente/concluída".
-
-Gerar um código de validação único (hash/UUID) para o certificado.
-
-Geração do Arquivo PDF:
-
-Utilizar uma biblioteca Node.js (como pdfkit ou puppeteer) para renderizar o layout do certificado com dados dinâmicos: Nome do Aluno, Nome do Curso, Carga Horária, Data e Código de Validação.
-
-Rota Pública GET /certificates/validate/:code: Rota pública para qualquer pessoa validar a autenticidade de um certificado inserindo o código.
-
---------------------------------------------------------------------------------------------------------
-
-TAREFA 3: Frontend Next.js — Autenticação, Layout e Dashboard (Frontend - Parte 1)
-Foco: Interface base, navegação e integração com o módulo de Auth/Users.
-
-O que fazer:
-
-Estruturar o projeto em Next.js (App Router ou Pages Router) com biblioteca de UI (Tailwind CSS, Shadcn/ui ou Material UI).
-
-Página de Login (/login) e Cadastro (/register): Formulários integrados com as rotas POST /auth/login e POST /auth/register.
-
-Gerenciamento de Estado/Token: Armazenar o JWT de forma segura (Cookies/LocalStorage) e criar um Context/Hook para tratar a sessão do usuário.
-
-Rota Protegida e Redirecionamento: Garantir que páginas privadas redirecionem usuários não autenticados para a tela de login.
-
-Layout Base: Header/Navbar com exibição dos dados do usuário logado e botão de Logout.
-
---------------------------------------------------------------------------------------------------------
-
-TAREFA 4: Frontend Next.js — Catálogo, Inscrição e Painel Admin (Frontend - Parte 2)
-Foco: Telas de cursos, interações do aluno e visão administrativa.
-
-O que fazer:
-
-Página de Catálogo de Cursos (/courses): Consumir a rota GET /courses e exibir os cards com informações do evento e palestrante.
-
-Página do Aluno (/my-courses):
-
-Botão "Inscrever-se" nos cards de cursos.
-
-Lista de cursos em que o aluno já está inscrito.
-
-Botão "Baixar Certificado" (disponível apenas se a presença foi confirmada).
-
-Painel Administrativo (/admin):
-
-Formulário para cadastrar novos cursos (POST /courses).
-
-Tabela de alunos inscritos por curso com botão de Check-in (confirmar presença).
+| Foto | Nome | GitHub |
+| :---: | :--- | :---: |
+| <img src="https://github.com/WendlingNathan.png" width="80px" style="border-radius:50%"> | **Nathan Ritter Wendling** | [@WendlingNathan](https://github.com/WendlingNathan) |
+| <img src="https://github.com/marcoschons.png" width="80px" style="border-radius:50%"> | **Marco Antônio Schons Santos** | [@marcoschons](https://github.com/marcoschons) |
+| <img src="https://github.com/EduardoNofre007.png" width="80px" style="border-radius:50%"> | **Eduardo Augusto Romio Nofre** | [@EduardoNofre007](https://github.com/EduardoNofre007) |
+| <img src="https://github.com/PedroHBender.png" width="80px" style="border-radius:50%"> | **Pedro Henrique Bender Schwambach Saito** | [@PedroHBender](https://github.com/PedroHBender) |
