@@ -34,8 +34,10 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pdfkit": "^0.20.2",
+    "puppeteer": "^25.12.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^12.0.0",
@@ -50,6 +52,7 @@
     "@types/passport-jwt": "^4.0.1",
     "@types/pdfkit": "^0.17.6",
     "@types/supertest": "^7.0.0",
+    "@types/uuid": "^10.0.0",
     "jest": "^30.0.0",
     "oxlint": "^1.58.0",
     "prettier": "^3.4.2",

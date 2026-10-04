@@ -15,6 +15,7 @@ interface Enrollment {
   id: string;
   course: Course;
   completedAt: string | null;
+  attended?: boolean;
 }
 
 export default function DashboardPage() {
@@ -29,23 +30,23 @@ export default function DashboardPage() {
     fetchData();
   }, [activeTab]);
 
- const fetchData = async () => {
-  setLoading(true);
-  try {
-    if (activeTab === 'courses') {
-      const res = await api.get('/courses');
-      setCourses(res.data);
-    } else if (activeTab === 'my-courses' || activeTab === 'certificates') {
-      // ATUALIZADO: trocado para 'my-enrollments'
-      const res = await api.get('/enrollments/my-enrollments');
-      setEnrollments(res.data);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      if (activeTab === 'courses') {
+        const res = await api.get('/courses');
+        setCourses(res.data);
+      } else if (activeTab === 'my-courses' || activeTab === 'certificates') {
+        const res = await api.get('/enrollments/my-enrollments');
+        setEnrollments(res.data);
+      }
+    } catch (err) {
+      console.error('Erro ao carregar dados:', err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error('Erro ao carregar dados:', err);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
   const handleEnroll = async (courseId: string) => {
     setActionLoading(courseId);
     try {
@@ -59,9 +60,38 @@ export default function DashboardPage() {
     }
   };
 
+  const handleCancelEnrollment = async (enrollmentId: string) => {
+    if (!confirm('Tem a certeza de que deseja cancelar esta inscrição?')) return;
+
+    try {
+      await api.delete(`/enrollments/${enrollmentId}`);
+      alert('Inscrição cancelada com sucesso!');
+      fetchData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Erro ao cancelar inscrição.');
+    }
+  };
+
+  const handleDownloadCertificate = async (enrollmentId: string) => {
+    try {
+      const response = await api.post(`/certificates/generate/${enrollmentId}`, {}, {
+        responseType: 'blob',
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `certificado-${enrollmentId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err: any) {
+      alert('Erro ao transferir certificado.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-      {/* Topbar / Navbar */}
       <header className="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center">
         <h1 className="text-xl font-bold text-blue-600">CertUni — Painel do Aluno</h1>
         <button
@@ -72,7 +102,6 @@ export default function DashboardPage() {
         </button>
       </header>
 
-      {/* Navegação por Abas */}
       <div className="bg-white border-b px-6 pt-4 flex gap-6">
         <button
           onClick={() => setActiveTab('my-courses')}
@@ -100,13 +129,11 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {/* Conteúdo Principal */}
       <main className="flex-1 p-6 max-w-6xl w-full mx-auto">
         {loading ? (
           <div className="text-center py-12 text-gray-500 font-medium">A carregar informações...</div>
         ) : (
           <>
-            {/* Aba 1: Meus Cursos */}
             {activeTab === 'my-courses' && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {enrollments.length === 0 ? (
@@ -126,16 +153,23 @@ export default function DashboardPage() {
                         <h2 className="font-bold text-lg text-gray-800">{item.course.title}</h2>
                         <p className="text-sm text-gray-600 mt-2">{item.course.description}</p>
                       </div>
-                      <button className="mt-4 w-full py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 text-sm font-medium transition">
-                        Acessar Aulas
-                      </button>
+                      <div className="mt-4 flex gap-2">
+                        <button className="flex-1 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 text-sm font-medium transition">
+                          Acessar Aulas
+                        </button>
+                        <button
+                          onClick={() => handleCancelEnrollment(item.id)}
+                          className="px-3 py-2 bg-red-50 text-red-600 border border-red-200 rounded hover:bg-red-100 text-sm font-medium transition"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
               </div>
             )}
 
-            {/* Aba 2: Catálogo de Cursos */}
             {activeTab === 'courses' && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {courses.length === 0 ? (
@@ -163,26 +197,28 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* Aba 3: Certificados */}
             {activeTab === 'certificates' && (
               <div className="space-y-4">
-                {enrollments.filter((e) => e.completedAt).length === 0 ? (
+                {enrollments.filter((e) => e.attended || e.completedAt).length === 0 ? (
                   <div className="text-center py-12 bg-white rounded-lg border border-dashed border-gray-300">
-                    <p className="text-gray-500 font-medium">Ainda não concluiu nenhum curso para gerar certificado.</p>
+                    <p className="text-gray-500 font-medium">
+                      Ainda não concluiu nem confirmou presença em nenhum curso para gerar certificado.
+                    </p>
                   </div>
                 ) : (
                   enrollments
-                    .filter((e) => e.completedAt)
+                    .filter((e) => e.attended || e.completedAt)
                     .map((item) => (
                       <div key={item.id} className="bg-white p-5 rounded-lg border shadow-sm flex justify-between items-center">
                         <div>
                           <h2 className="font-bold text-lg text-gray-800">{item.course.title}</h2>
-                          <p className="text-xs text-gray-500 mt-1">
-                            Concluído em: {new Date(item.completedAt!).toLocaleDateString('pt-BR')}
-                          </p>
+                          <p className="text-xs text-gray-500 mt-1">Status: Presença Confirmada</p>
                         </div>
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium transition">
-                          Emitir PDF
+                        <button
+                          onClick={() => handleDownloadCertificate(item.id)}
+                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium transition"
+                        >
+                          Baixar Certificado
                         </button>
                       </div>
                     ))
