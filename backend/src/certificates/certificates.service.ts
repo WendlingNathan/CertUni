@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service'; 
 import { randomUUID } from 'node:crypto';
-import * as puppeteer from 'puppeteer';
+import PDFDocument from 'pdfkit';
 
 @Injectable()
 export class CertificatesService {
@@ -26,24 +26,13 @@ export class CertificatesService {
       },
     });
 
-    const htmlContent = `
-      <div style="font-family: Arial; text-align: center; padding: 50px;">
-        <h1>Certificado de Conclusão</h1>
-        <p>Certificamos que</p>
-        <h2>${enrollment.user.name}</h2>
-        <p>concluiu o curso</p>
-        <h2>${enrollment.course.title}</h2>
-        <p>Código: <b>${certificateCode}</b></p>
-      </div>
-    `;
-
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
-    await page.setContent(htmlContent);
-    const pdfUint8Array = await page.pdf({ format: 'A4', landscape: true });
-    await browser.close();
-
-    return Buffer.from(pdfUint8Array);
+    return this.renderCertificate({
+      studentName: enrollment.user.name,
+      courseTitle: enrollment.course.title,
+      workload: enrollment.course.workload,
+      eventDate: enrollment.course.eventDate,
+      certificateCode,
+    });
   }
 
   async validateCode(code: string) {
@@ -60,5 +49,110 @@ export class CertificatesService {
       courseTitle: certificate.course.title,
       issuedAt: certificate.issuedAt, // Você mencionou que esse campo existe
     };
+  }
+
+  private renderCertificate(data: {
+    studentName: string;
+    courseTitle: string;
+    workload: number;
+    eventDate: Date;
+    certificateCode: string;
+  }): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      const document = new PDFDocument({
+        size: 'A4',
+        layout: 'landscape',
+        margin: 48,
+      });
+      const chunks: Buffer[] = [];
+
+      document.on('data', (chunk: Buffer) => chunks.push(chunk));
+      document.on('end', () => resolve(Buffer.concat(chunks)));
+      document.on('error', reject);
+
+      const pageWidth = document.page.width;
+      const pageHeight = document.page.height;
+
+      document
+        .lineWidth(3)
+        .strokeColor('#2563eb')
+        .rect(28, 28, pageWidth - 56, pageHeight - 56)
+        .stroke();
+
+      document
+        .fillColor('#1d4ed8')
+        .fontSize(13)
+        .font('Helvetica-Bold')
+        .text('CERTUNI', 0, 72, { align: 'center' });
+
+      document
+        .fillColor('#0f172a')
+        .fontSize(30)
+        .text('Certificado de Conclusão', 70, 118, {
+          align: 'center',
+          width: pageWidth - 140,
+        });
+
+      document
+        .font('Helvetica')
+        .fontSize(15)
+        .fillColor('#475569')
+        .text('Certificamos que', 70, 190, {
+          align: 'center',
+          width: pageWidth - 140,
+        });
+
+      document
+        .font('Helvetica-Bold')
+        .fontSize(24)
+        .fillColor('#0f172a')
+        .text(data.studentName, 70, 224, {
+          align: 'center',
+          width: pageWidth - 140,
+        });
+
+      document
+        .font('Helvetica')
+        .fontSize(15)
+        .fillColor('#475569')
+        .text('concluiu com aproveitamento o curso', 70, 274, {
+          align: 'center',
+          width: pageWidth - 140,
+        });
+
+      document
+        .font('Helvetica-Bold')
+        .fontSize(21)
+        .fillColor('#1d4ed8')
+        .text(data.courseTitle, 70, 308, {
+          align: 'center',
+          width: pageWidth - 140,
+        });
+
+      const eventDate = data.eventDate.toLocaleDateString('pt-BR', {
+        timeZone: 'UTC',
+      });
+
+      document
+        .font('Helvetica')
+        .fontSize(12)
+        .fillColor('#475569')
+        .text(
+          `Carga horária: ${data.workload} horas  •  Data do evento: ${eventDate}`,
+          70,
+          378,
+          { align: 'center', width: pageWidth - 140 },
+        );
+
+      document
+        .fontSize(9)
+        .fillColor('#64748b')
+        .text(`Código de validação: ${data.certificateCode}`, 70, pageHeight - 82, {
+          align: 'center',
+          width: pageWidth - 140,
+        });
+
+      document.end();
+    });
   }
 }

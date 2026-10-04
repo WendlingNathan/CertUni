@@ -6,8 +6,15 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Habilita o CORS para permitir requisições do Next.js
-  app.enableCors();
+  const allowedOrigins = process.env.CORS_ORIGIN
+    ?.split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  app.enableCors({
+    origin: allowedOrigins?.length ? allowedOrigins : true,
+    credentials: true,
+  });
 
   // validação de DTOs globalmente no código
   app.useGlobalPipes(
