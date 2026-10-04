@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { AUTH_COOKIE_MAX_AGE, AUTH_COOKIE_NAME } from '@/lib/auth-config';
 import type { AuthUser } from '@/lib/auth-types';
-import { fetchBackend } from '@/lib/server/backend';
+import {
+  fetchBackend,
+  isBackendUnavailableStatus,
+} from '@/lib/server/backend';
 
 interface LoginResponse {
   access_token: string;
@@ -27,6 +30,16 @@ export async function POST(request: Request) {
     const data = await upstream.json().catch(() => null);
 
     if (!upstream.ok) {
+      if (isBackendUnavailableStatus(upstream.status)) {
+        return NextResponse.json(
+          {
+            message:
+              'O servidor está iniciando. Aguarde alguns segundos e tente novamente.',
+          },
+          { status: 503 },
+        );
+      }
+
       return NextResponse.json(data ?? { message: 'Falha ao autenticar.' }, {
         status: upstream.status,
       });

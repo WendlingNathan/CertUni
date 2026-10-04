@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
-import { fetchBackend } from '@/lib/server/backend';
+import {
+  fetchBackend,
+  isBackendUnavailableStatus,
+} from '@/lib/server/backend';
 
 export async function POST(request: Request) {
   try {
@@ -19,6 +22,16 @@ export async function POST(request: Request) {
       }),
     });
     const data = await upstream.json().catch(() => null);
+
+    if (isBackendUnavailableStatus(upstream.status)) {
+      return NextResponse.json(
+        {
+          message:
+            'O servidor está iniciando. Aguarde alguns segundos e tente novamente.',
+        },
+        { status: 503 },
+      );
+    }
 
     return NextResponse.json(data ?? {}, { status: upstream.status });
   } catch {
