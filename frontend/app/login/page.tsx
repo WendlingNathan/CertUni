@@ -39,11 +39,11 @@ export default function LoginPage() {
 
   return (
     <AuthShell>
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-8">
-        <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-600">
+      <div className="surface-card animate-fade-up p-6 sm:p-8">
+        <p className="page-kicker text-blue-600">
           Bem-vindo de volta
         </p>
-        <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
+        <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950">
           Entre na sua conta
         </h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">

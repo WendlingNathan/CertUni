@@ -146,14 +146,17 @@ export function StudentCoursePanel() {
   }
 
   return (
-    <section aria-labelledby="student-area-title" className="mt-10">
-      <div>
-        <p className="text-sm font-semibold text-blue-700">Área do aluno</p>
-        <h2 id="student-area-title" className="mt-1 text-2xl font-bold text-slate-950">Cursos e certificados</h2>
+    <section aria-labelledby="student-area-title" className="mt-9">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="page-kicker text-blue-700">Área do aluno</p>
+          <h2 id="student-area-title" className="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-950">Cursos e certificados</h2>
+        </div>
+        <p className="text-sm text-slate-500">Acompanhe sua trajetória acadêmica</p>
       </div>
 
-      <div className="mt-5 overflow-x-auto border-b border-slate-200">
-        <div className="flex min-w-max gap-6" role="tablist" aria-label="Conteúdo acadêmico">
+      <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200/80 bg-white/80 p-1.5 shadow-sm backdrop-blur">
+        <div className="flex min-w-max gap-1" role="tablist" aria-label="Conteúdo acadêmico">
           <TabButton active={tab === 'enrollments'} onClick={() => selectTab('enrollments')} icon={BookOpenCheck}>Meus cursos</TabButton>
           <TabButton active={tab === 'catalog'} onClick={() => selectTab('catalog')} icon={CalendarDays}>Catálogo</TabButton>
           <TabButton active={tab === 'certificates'} onClick={() => selectTab('certificates')} icon={Award}>Certificados</TabButton>
@@ -167,7 +170,7 @@ export function StudentCoursePanel() {
       )}
 
       {isLoading ? (
-        <div className="mt-5 grid min-h-56 place-items-center rounded-2xl border border-slate-200 bg-white"><LoaderCircle className="size-7 animate-spin text-blue-600" /></div>
+        <div className="surface-card mt-5 grid min-h-56 place-items-center"><LoaderCircle className="size-7 animate-spin text-blue-600" /></div>
       ) : tab === 'catalog' ? (
         courses.length ? (
           <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -185,7 +188,7 @@ export function StudentCoursePanel() {
         completedEnrollments.length ? (
           <div className="mt-5 space-y-4">
             {completedEnrollments.map((enrollment) => (
-              <article key={enrollment.id} className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+              <article key={enrollment.id} className="surface-card flex flex-col gap-4 p-5 transition hover:-translate-y-0.5 hover:shadow-lg sm:flex-row sm:items-center sm:justify-between">
                 <div><h3 className="font-bold text-slate-950">{enrollment.course.title}</h3><p className="mt-1 text-sm text-emerald-700">Presença confirmada · {enrollment.course.workload}h</p></div>
                 <button type="button" onClick={() => void downloadCertificate(enrollment)} disabled={pendingId === enrollment.id} className="primary-button shrink-0">
                   {pendingId === enrollment.id ? <LoaderCircle className="size-4 animate-spin" /> : <Download className="size-4" />}{pendingId === enrollment.id ? 'Gerando...' : 'Baixar certificado'}
@@ -212,13 +215,13 @@ export function StudentCoursePanel() {
 }
 
 function TabButton({ active, onClick, icon: Icon, children }: { active: boolean; onClick: () => void; icon: typeof Award; children: React.ReactNode }) {
-  return <button type="button" role="tab" aria-selected={active} onClick={onClick} className={`inline-flex min-h-12 items-center gap-2 border-b-2 px-1 text-sm font-bold transition ${active ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}><Icon className="size-4" />{children}</button>;
+  return <button type="button" role="tab" aria-selected={active} onClick={onClick} className={`inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-bold transition ${active ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'}`}><Icon className="size-4" />{children}</button>;
 }
 
 function CourseCard({ course, status, children }: { course: Course; status?: string; children: React.ReactNode }) {
-  return <article className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><div className="flex-1">{status && <span className="mb-3 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">{status}</span>}<h3 className="text-lg font-bold text-slate-950">{course.title}</h3><p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{course.description}</p><div className="mt-4 space-y-2 text-xs font-medium text-slate-500"><p className="flex items-center gap-2"><CalendarDays className="size-4" />{dateFormatter.format(new Date(course.eventDate))}</p><p className="flex items-center gap-2"><Clock3 className="size-4" />{course.workload}h · {course.speaker}</p></div></div>{children}</article>;
+  return <article className="surface-card group flex flex-col overflow-hidden p-6 transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl"><div className="mb-5 h-1.5 w-12 rounded-full bg-gradient-to-r from-blue-600 to-indigo-500 transition-all group-hover:w-20" /><div className="flex-1">{status && <span className="mb-3 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-blue-100">{status}</span>}<h3 className="text-lg font-extrabold tracking-tight text-slate-950">{course.title}</h3><p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{course.description}</p><div className="mt-5 space-y-2.5 rounded-xl bg-slate-50/80 p-3 text-xs font-medium text-slate-500"><p className="flex items-center gap-2"><CalendarDays className="size-4 text-blue-600" />{dateFormatter.format(new Date(course.eventDate))}</p><p className="flex items-center gap-2"><Clock3 className="size-4 text-blue-600" />{course.workload}h · {course.speaker}</p></div></div>{children}</article>;
 }
 
 function EmptyState({ text, action }: { text: string; action?: () => void }) {
-  return <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center"><p className="text-sm font-medium text-slate-500">{text}</p>{action && <button type="button" onClick={action} className="mt-3 text-sm font-bold text-blue-700 hover:underline">Explorar catálogo →</button>}</div>;
+  return <div className="surface-card mt-5 border-dashed px-6 py-14 text-center"><span className="mx-auto mb-4 grid size-12 place-items-center rounded-2xl bg-blue-50 text-blue-600"><BookOpenCheck className="size-6" /></span><p className="text-sm font-medium text-slate-500">{text}</p>{action && <button type="button" onClick={action} className="mt-3 text-sm font-bold text-blue-700 hover:underline">Explorar catálogo →</button>}</div>;
 }

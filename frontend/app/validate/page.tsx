@@ -47,16 +47,19 @@ export default function ValidateCertificatePage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6">
+    <main className="relative min-h-screen overflow-hidden px-4 py-10 sm:px-6">
+      <div className="absolute -left-20 top-16 size-80 rounded-full bg-blue-200/35 blur-3xl" />
+      <div className="absolute -right-20 bottom-0 size-96 rounded-full bg-indigo-200/30 blur-3xl" />
       <div className="mx-auto max-w-2xl">
         <Link href="/login" className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-blue-700">
           <ArrowLeft className="size-4" />Voltar para o acesso
         </Link>
 
-        <section className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50">
-          <div className="bg-gradient-to-br from-blue-700 to-indigo-700 px-6 py-8 text-white sm:px-10">
+        <section className="surface-card animate-fade-up relative mt-6 overflow-hidden">
+          <div className="relative overflow-hidden bg-gradient-to-br from-blue-700 via-blue-700 to-indigo-800 px-6 py-8 text-white sm:px-10">
+            <div className="absolute -right-12 -top-16 size-56 rounded-full bg-cyan-300/20 blur-3xl" />
             <span className="grid size-12 place-items-center rounded-xl bg-white/15"><BadgeCheck className="size-7" /></span>
-            <h1 className="mt-5 text-3xl font-bold tracking-tight">Validar certificado</h1>
+            <h1 className="relative mt-5 text-3xl font-extrabold tracking-tight">Validar certificado</h1>
             <p className="mt-2 max-w-xl text-blue-100">Informe o código impresso no documento para confirmar sua autenticidade.</p>
           </div>
 

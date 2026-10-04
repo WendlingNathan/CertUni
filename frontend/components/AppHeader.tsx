@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { BadgeCheck, LogOut, Settings, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import type { AuthUser } from '@/lib/auth-types';
 
@@ -13,6 +14,7 @@ const roleLabels: Record<AuthUser['role'], string> = {
 
 export function AppHeader({ user }: { user: AuthUser }) {
   const { logout } = useAuth();
+  const pathname = usePathname();
   const [isLeaving, setIsLeaving] = useState(false);
   const displayName = user.name || user.email.split('@')[0];
 
@@ -22,10 +24,10 @@ export function AppHeader({ user }: { user: AuthUser }) {
   }
 
   return (
-    <header className="border-b border-slate-200 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 shadow-[0_1px_18px_rgb(15_23_42/0.04)] backdrop-blur-xl">
       <div className="mx-auto flex min-h-18 max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         <Link href="/dashboard" className="flex items-center gap-3" aria-label="CertUni">
-          <span className="grid size-10 place-items-center rounded-xl bg-blue-600 text-white shadow-sm">
+          <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-200/70">
             <ShieldCheck aria-hidden="true" className="size-5" />
           </span>
           <span>
@@ -35,21 +37,21 @@ export function AppHeader({ user }: { user: AuthUser }) {
         </Link>
 
         <div className="flex items-center gap-3 sm:gap-5">
-          <nav aria-label="Navegação principal" className="hidden items-center gap-1 md:flex">
+          <nav aria-label="Navegação principal" className="flex items-center gap-1">
             <Link
               href="/validate"
-              className="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950"
+              className={`inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-semibold transition ${pathname === '/validate' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'}`}
             >
               <BadgeCheck aria-hidden="true" className="size-4" />
-              Validar certificado
+              <span className="hidden lg:inline">Validar certificado</span>
             </Link>
             {user.role === 'ADMIN' && (
               <Link
                 href="/admin"
-                className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-blue-50 px-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
+                className={`inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-semibold transition ${pathname === '/admin' ? 'bg-blue-600 text-white shadow-sm' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'}`}
               >
                 <Settings aria-hidden="true" className="size-4" />
-                Administração
+                <span className="hidden lg:inline">Administração</span>
               </Link>
             )}
           </nav>

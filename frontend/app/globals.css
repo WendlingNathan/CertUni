@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
+  --background: #f5f7fb;
   --foreground: #0f172a;
+  --brand: #2563eb;
+  --brand-dark: #1d4ed8;
 }
 
 * {
@@ -11,15 +13,24 @@
 
 html {
   background: var(--background);
+  scroll-behavior: smooth;
 }
 
 body {
   min-height: 100vh;
   margin: 0;
-  background: var(--background);
+  background:
+    radial-gradient(circle at 8% 3%, rgb(219 234 254 / 65%), transparent 24rem),
+    radial-gradient(circle at 94% 12%, rgb(224 231 255 / 55%), transparent 28rem),
+    var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgb(37 99 235 / 18%);
+  color: #172554;
 }
 
 button,
@@ -37,7 +48,7 @@ a {
 .form-input {
   width: 100%;
   min-height: 2.875rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #d5ddea;
   border-radius: 0.625rem;
   background: #fff;
   padding-top: 0.625rem;
@@ -45,7 +56,8 @@ a {
   padding-bottom: 0.625rem;
   color: #0f172a;
   outline: none;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 3%);
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
 }
 
 .form-input::placeholder {
@@ -54,7 +66,8 @@ a {
 
 .form-input:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgb(37 99 235 / 12%);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgb(37 99 235 / 11%);
 }
 
 .primary-button {
@@ -65,18 +78,19 @@ a {
   gap: 0.5rem;
   border: 0;
   border-radius: 0.625rem;
-  background: #2563eb;
+  background: linear-gradient(135deg, #2563eb, #315be8);
   padding: 0.625rem 1rem;
   color: #fff;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgb(37 99 235 / 20%);
-  transition: background-color 150ms ease, transform 150ms ease;
+  box-shadow: 0 8px 20px rgb(37 99 235 / 22%);
+  transition: box-shadow 150ms ease, transform 150ms ease, filter 150ms ease;
 }
 
 .primary-button:hover:not(:disabled) {
-  background: #1d4ed8;
+  filter: brightness(0.96);
   transform: translateY(-1px);
+  box-shadow: 0 11px 24px rgb(37 99 235 / 28%);
 }
 
 .primary-button:disabled {
@@ -87,4 +101,37 @@ a {
 :focus-visible {
   outline: 3px solid rgb(37 99 235 / 35%);
   outline-offset: 2px;
+}
+
+.surface-card {
+  border: 1px solid rgb(226 232 240 / 85%);
+  border-radius: 1.25rem;
+  background: rgb(255 255 255 / 92%);
+  box-shadow: 0 12px 35px rgb(15 23 42 / 6%);
+  backdrop-filter: blur(14px);
+}
+
+.page-kicker {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fade-up 380ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

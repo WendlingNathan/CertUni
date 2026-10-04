@@ -121,11 +121,11 @@ export function AdminPanel() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-      <section className="rounded-3xl bg-gradient-to-br from-slate-950 to-blue-900 px-6 py-8 text-white shadow-lg sm:px-10">
-        <p className="text-sm font-bold uppercase tracking-[0.18em] text-blue-200">Área restrita</p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Painel administrativo</h1>
-        <p className="mt-3 max-w-2xl text-slate-200">Cadastre cursos e confirme a presença dos participantes.</p>
+    <main className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-10 lg:px-8">
+      <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-950 via-blue-950 to-blue-800 px-6 py-8 text-white shadow-xl shadow-slate-300/50 sm:px-10 sm:py-10">
+        <div className="absolute inset-0 opacity-[0.06] [background-image:linear-gradient(rgba(255,255,255,.8)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.8)_1px,transparent_1px)] [background-size:44px_44px]" />
+        <div className="absolute -right-12 -top-20 size-72 rounded-full bg-blue-400/20 blur-3xl" />
+        <div className="relative"><p className="page-kicker text-blue-200">Área restrita</p><h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">Painel administrativo</h1><p className="mt-3 max-w-2xl text-slate-200">Organize novos eventos e acompanhe a participação dos alunos.</p></div>
       </section>
 
       {feedback && (
@@ -134,8 +134,8 @@ export function AdminPanel() {
         </div>
       )}
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-2">
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+        <section className="surface-card p-6 sm:p-8">
           <div className="flex items-center gap-3">
             <span className="grid size-11 place-items-center rounded-xl bg-blue-50 text-blue-700"><GraduationCap className="size-5" /></span>
             <div><p className="text-sm font-semibold text-blue-700">Novo evento</p><h2 className="text-xl font-bold text-slate-950">Cadastrar curso</h2></div>
@@ -156,7 +156,7 @@ export function AdminPanel() {
           </form>
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <section className="surface-card p-6 sm:p-8">
           <div className="flex items-center gap-3">
             <span className="grid size-11 place-items-center rounded-xl bg-emerald-50 text-emerald-700"><UsersRound className="size-5" /></span>
             <div><p className="text-sm font-semibold text-emerald-700">Participantes</p><h2 className="text-xl font-bold text-slate-950">Gestão de presenças</h2></div>
@@ -204,5 +204,5 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function EmptyState({ icon: Icon, text }: { icon: typeof UsersRound; text: string }) {
-  return <div className="grid min-h-36 place-items-center rounded-xl border border-dashed border-slate-300 bg-slate-50 p-5 text-center text-sm text-slate-500"><div><Icon className="mx-auto mb-2 size-6 text-slate-400" />{text}</div></div>;
+  return <div className="grid min-h-40 place-items-center rounded-2xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-blue-50/50 p-5 text-center text-sm text-slate-500"><div><span className="mx-auto mb-3 grid size-11 place-items-center rounded-xl bg-white text-blue-600 shadow-sm"><Icon className="size-5" /></span>{text}</div></div>;
 }
