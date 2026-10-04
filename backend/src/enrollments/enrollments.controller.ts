@@ -69,6 +69,7 @@ export class EnrollmentsController {
     );
   }
   @Patch(':id/check-in')
+  @Roles(Role.ADMIN)
   checkIn(@Param('id') id: string) {
     return this.enrollmentsService.checkIn(id); 
   }

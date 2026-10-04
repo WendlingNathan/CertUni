@@ -1,9 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginDto } from './auth/dto/login.dto';
 import * as bcrypt from 'bcrypt';
+import { Role } from '@prisma/client';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -12,8 +13,11 @@ export class AuthService {
         private readonly jwtService: JwtService,
     ) {}
 
-    async register(createUserDto: CreateUserDto) {
-        return this.usersService.create(createUserDto);
+    async register(registerDto: RegisterDto) {
+        return this.usersService.create({
+            ...registerDto,
+            role: Role.STUDENT,
+        });
     }
 
     async login(loginDto: LoginDto) {
