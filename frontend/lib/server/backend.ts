@@ -1,6 +1,6 @@
 import 'server-only';
 
-const DEFAULT_BACKEND_URL = 'http://localhost:3000';
+const DEFAULT_BACKEND_URL = 'https://certuni-api.onrender.com';
 
 export function getBackendUrl(path: string) {
   const baseUrl = (process.env.BACKEND_API_URL ?? DEFAULT_BACKEND_URL).replace(

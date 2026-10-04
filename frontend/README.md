@@ -10,14 +10,16 @@ TypeScript e Tailwind CSS 4.
 
 ## Configuração
 
-Por padrão, o servidor Next se comunica com o backend em
-`http://localhost:3000`. Para usar outro endereço, crie um arquivo `.env.local`:
+Por padrão, o servidor Next se comunica com a API compartilhada em
+`https://certuni-api.onrender.com`. Para usar o backend local, crie um arquivo
+`.env.local`:
 
 ```env
 BACKEND_API_URL=http://localhost:3000
 ```
 
-Como o backend usa a porta 3000, execute o frontend em outra porta:
+Ao executar também o backend local na porta 3000, inicie o frontend em outra
+porta:
 
 ```bash
 npm install
