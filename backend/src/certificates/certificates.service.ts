@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service'; 
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import * as puppeteer from 'puppeteer';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class CertificatesService {
     if (!enrollment) throw new NotFoundException('Inscrição não encontrada.');
     if (!enrollment.completed) throw new ForbiddenException('Presença não confirmada.');
 
-    const certificateCode = uuidv4();
+    const certificateCode = randomUUID();
     
     await this.prisma.certificate.create({
       data: {
