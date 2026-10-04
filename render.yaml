@@ -19,3 +19,20 @@ services:
         sync: false
       - key: JWT_SECRET
         generateValue: true
+
+  - type: web
+    name: certuni-web
+    runtime: node
+    plan: free
+    region: virginia
+    rootDir: frontend
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm run start
+    healthCheckPath: /login
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 24.19.0
+      - key: BACKEND_API_URL
+        value: https://certuni-api.onrender.com

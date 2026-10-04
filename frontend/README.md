@@ -26,6 +26,15 @@ npm install
 npm run dev -- --port 3001
 ```
 
+## Deploy no Render
+
+O `render.yaml` da raiz cria o frontend como o Web Service `certuni-web`. Ele
+usa a pasta `frontend`, executa o build de produção do Next.js e se conecta à
+API publicada em `https://certuni-api.onrender.com`.
+
+Como a aplicação usa Route Handlers e cookies `httpOnly`, ela deve permanecer
+como Web Service Node e não como Static Site.
+
 Acesse `http://localhost:3001`. A raiz redireciona para o dashboard ou, quando
 não há uma sessão válida, para `/login`.
 
