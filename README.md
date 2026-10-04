@@ -10,12 +10,36 @@ O **CertUni** é uma aplicação web desenvolvida em arquitetura moderna de micr
 
 ---
 
+## 🌐 Aplicação hospedada
+
+| Serviço | Endereço |
+| :--- | :--- |
+| **Aplicação web** | [https://certuni-web.onrender.com](https://certuni-web.onrender.com) |
+| **API** | [https://certuni-api.onrender.com](https://certuni-api.onrender.com) |
+
+A aplicação web permite acessar o cadastro, o login, os painéis de aluno e
+administrador e a validação pública de certificados. O frontend e o backend
+estão publicados como serviços separados no Render e utilizam um banco de
+dados PostgreSQL hospedado no Supabase.
+
+> Como os serviços utilizam o plano gratuito do Render, o primeiro acesso após
+> um período de inatividade pode levar alguns segundos enquanto o servidor é
+> iniciado.
+
+### Acessos rápidos
+
+- [Criar uma conta](https://certuni-web.onrender.com/register)
+- [Entrar na plataforma](https://certuni-web.onrender.com/login)
+- [Validar um certificado](https://certuni-web.onrender.com/validate)
+
+---
+
 ## 🚀 Tecnologias Utilizadas
 
 ### **Backend**
 - **Framework:** [NestJS](https://nestjs.com/) (TypeScript)
 - **ORM:** [Prisma](https://www.prisma.io/)
-- **Banco de Dados:** PostgreSQL / MySQL
+- **Banco de Dados:** PostgreSQL hospedado no [Supabase](https://supabase.com/)
 - **Autenticação:** JWT (JSON Web Tokens) + Passport
 - **Testes:** Jest (Unitários e E2E)
 
@@ -24,6 +48,10 @@ O **CertUni** é uma aplicação web desenvolvida em arquitetura moderna de micr
 - **Linguagem:** TypeScript
 - **Estilização:** Tailwind CSS
 - **Gerenciamento de Sessão:** Next.js Route Handlers + Context API
+
+### **Hospedagem**
+- **Frontend e Backend:** [Render](https://render.com/)
+- **Banco de Dados:** [Supabase](https://supabase.com/)
 
 ---
 
