@@ -142,12 +142,12 @@ export function AdminPanel() {
           </div>
 
           <form onSubmit={handleCreateCourse} className="mt-6 space-y-4">
-            <Field label="Título"><input className="form-input" required value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Nome do curso" /></Field>
-            <Field label="Descrição"><textarea className="form-input min-h-28 resize-y" required value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Descrição do conteúdo" /></Field>
-            <Field label="Palestrante"><input className="form-input" required value={form.speaker} onChange={(event) => setForm({ ...form, speaker: event.target.value })} placeholder="Nome do palestrante" /></Field>
+            <Field label="Título"><input className="form-input pl-3.5" required value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Nome do curso" /></Field>
+            <Field label="Descrição"><textarea className="form-input min-h-28 resize-y pl-3.5" required value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Descrição do conteúdo" /></Field>
+            <Field label="Palestrante"><input className="form-input pl-3.5" required value={form.speaker} onChange={(event) => setForm({ ...form, speaker: event.target.value })} placeholder="Nome do palestrante" /></Field>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Carga horária"><input className="form-input" type="number" min="1" step="1" required value={form.workload} onChange={(event) => setForm({ ...form, workload: event.target.value })} placeholder="Horas" /></Field>
-              <Field label="Data do evento"><input className="form-input" type="datetime-local" required value={form.eventDate} onChange={(event) => setForm({ ...form, eventDate: event.target.value })} /></Field>
+              <Field label="Carga horária"><input className="form-input pl-3.5" type="number" min="1" step="1" required value={form.workload} onChange={(event) => setForm({ ...form, workload: event.target.value })} placeholder="Horas" /></Field>
+              <Field label="Data do evento"><input className="form-input pl-3.5" type="datetime-local" required value={form.eventDate} onChange={(event) => setForm({ ...form, eventDate: event.target.value })} /></Field>
             </div>
             <button className="primary-button w-full" type="submit" disabled={isSaving}>
               {isSaving ? <LoaderCircle className="size-4 animate-spin" /> : <Plus className="size-4" />}
