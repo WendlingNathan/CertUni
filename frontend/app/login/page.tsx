@@ -117,6 +117,11 @@ export default function LoginPage() {
             Cadastre-se
           </Link>
         </p>
+        <p className="mt-3 text-center text-sm">
+          <Link href="/validate" className="font-semibold text-slate-500 hover:text-blue-700 hover:underline">
+            Validar um certificado
+          </Link>
+        </p>
       </div>
     </AuthShell>
   );

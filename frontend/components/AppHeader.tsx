@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LogOut, ShieldCheck } from 'lucide-react';
+import { BadgeCheck, LogOut, Settings, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import type { AuthUser } from '@/lib/auth-types';
@@ -35,6 +35,24 @@ export function AppHeader({ user }: { user: AuthUser }) {
         </Link>
 
         <div className="flex items-center gap-3 sm:gap-5">
+          <nav aria-label="Navegação principal" className="hidden items-center gap-1 md:flex">
+            <Link
+              href="/validate"
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950"
+            >
+              <BadgeCheck aria-hidden="true" className="size-4" />
+              Validar certificado
+            </Link>
+            {user.role === 'ADMIN' && (
+              <Link
+                href="/admin"
+                className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-blue-50 px-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
+              >
+                <Settings aria-hidden="true" className="size-4" />
+                Administração
+              </Link>
+            )}
+          </nav>
           <div className="hidden text-right sm:block">
             <p className="max-w-56 truncate text-sm font-semibold text-slate-900">
               {displayName}

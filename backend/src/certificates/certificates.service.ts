@@ -2,18 +2,26 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { PrismaService } from '../prisma/prisma.service'; 
 import { randomUUID } from 'node:crypto';
 import PDFDocument from 'pdfkit';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class CertificatesService {
   constructor(private prisma: PrismaService) {}
 
-  async generatePdf(enrollmentId: string): Promise<Buffer> {
+  async generatePdf(
+    enrollmentId: string,
+    authenticatedUserId: string,
+    role: Role,
+  ): Promise<Buffer> {
     const enrollment = await this.prisma.enrollment.findUnique({
       where: { id: enrollmentId }, // Mude para Number(enrollmentId) se for Int no banco
       include: { user: true, course: true },
     });
 
     if (!enrollment) throw new NotFoundException('Inscrição não encontrada.');
+    if (role === Role.STUDENT && enrollment.userId !== authenticatedUserId) {
+      throw new ForbiddenException('Você só pode emitir o seu próprio certificado.');
+    }
     if (!enrollment.completed) throw new ForbiddenException('Presença não confirmada.');
 
     const certificateCode = randomUUID();

@@ -1,10 +1,10 @@
 import {
-  Award,
-  BookOpenCheck,
-  CalendarDays,
   CircleUserRound,
   LockKeyhole,
+  Settings,
 } from 'lucide-react';
+import Link from 'next/link';
+import { StudentCoursePanel } from '@/components/StudentCoursePanel';
 import { requireUser } from '@/lib/server/auth';
 
 const roleLabels = {
@@ -31,25 +31,14 @@ export default async function DashboardPage() {
         </p>
       </section>
 
-      <section aria-labelledby="overview-title" className="mt-10">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold text-blue-700">Visão geral</p>
-            <h2 id="overview-title" className="mt-1 text-2xl font-bold text-slate-950">
-              Sua jornada na plataforma
-            </h2>
-          </div>
-          <span className="hidden rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 sm:inline">
-            Sessão ativa
-          </span>
-        </div>
-
-        <div className="mt-6 grid gap-5 md:grid-cols-3">
-          <FeatureCard icon={CalendarDays} title="Eventos e cursos" description="Consulte oportunidades de aprendizagem disponíveis na CertUni." color="blue" />
-          <FeatureCard icon={BookOpenCheck} title="Minhas inscrições" description="Acompanhe os cursos dos quais você participa e o status de conclusão." color="emerald" />
-          <FeatureCard icon={Award} title="Certificados" description="Acesse os certificados emitidos após a confirmação da sua presença." color="amber" />
-        </div>
-      </section>
+      {user.role === 'STUDENT' ? (
+        <StudentCoursePanel />
+      ) : (
+        <section className="mt-10 flex flex-col gap-5 rounded-2xl border border-blue-200 bg-blue-50 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div><p className="text-sm font-semibold text-blue-700">Perfil administrador</p><h2 className="mt-1 text-2xl font-bold text-slate-950">Gerencie cursos e presenças</h2><p className="mt-2 text-sm text-slate-600">Acesse as ferramentas administrativas da plataforma.</p></div>
+          <Link href="/admin" className="primary-button shrink-0"><Settings className="size-4" />Abrir administração</Link>
+        </section>
+      )}
 
       <section aria-labelledby="profile-title" className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
@@ -80,30 +69,5 @@ export default async function DashboardPage() {
         </dl>
       </section>
     </main>
-  );
-}
-
-interface FeatureCardProps {
-  icon: typeof Award;
-  title: string;
-  description: string;
-  color: 'blue' | 'emerald' | 'amber';
-}
-
-const iconColors = {
-  blue: 'bg-blue-50 text-blue-700',
-  emerald: 'bg-emerald-50 text-emerald-700',
-  amber: 'bg-amber-50 text-amber-700',
-};
-
-function FeatureCard({ icon: Icon, title, description, color }: FeatureCardProps) {
-  return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-      <span className={`grid size-11 place-items-center rounded-xl ${iconColors[color]}`}>
-        <Icon className="size-5" aria-hidden="true" />
-      </span>
-      <h3 className="mt-5 text-lg font-bold text-slate-950">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
-    </article>
   );
 }
